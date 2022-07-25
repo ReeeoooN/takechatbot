@@ -1,0 +1,28 @@
+{
+  "name": "returnmyfuckingchat",
+  "version": "1.0.0",
+  "description": "Бот для обмена заявок ",
+  "main": "botbody.js",
+  "scripts": {
+    "dev": "nodemon botbody.js",
+    "start": "node botbody.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ReeeoooN/takechatbot.git"
+  },
+  "author": "ReoN",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ReeeoooN/takechatbot/issues"
+  },
+  "homepage": "https://github.com/ReeeoooN/takechatbot#readme",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.58.0",
+    "node.date-time": "^1.2.2",
+    "nodemon": "^2.0.19",
+    "sequelize": "^6.21.3",
+    "sqlite": "^4.1.2",
+    "sqlite3": "^5.0.10"
+  }
+}

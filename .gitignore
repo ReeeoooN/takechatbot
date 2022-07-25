@@ -1,0 +1,8 @@
+/logs
+*.db
+TelegramAPI.js
+/node_modules
+*.exe
+*.txt
+*.def
+*.dll
