@@ -1,9 +1,9 @@
 const {TelegramApi, tocen, bot} = require('./TelegramAPI')
 const {logging} = require('./logging')
 const {startchoise, back} = require('./botBtn')
-const {ticketModel, chatModel } = require('./bd')
+const {ticketModel, chatModel, bigusersModel} = require('./bd')
 const {deleteBotMessage, createChatDB} = require('./Func/messDelF')
-const {returnchat} = require('./Func/function')
+const {returnchat, notificator, taker} = require('./Func/function')
 
 bot.setMyCommands( [
     {command: '/start', description: 'Начать'}
@@ -73,8 +73,11 @@ bot.on('callback_query', async msg =>{
     })
    }
    if (data === 'wantnot'){
-    deleteBotMessage(cid)
+    notificator(cid, uName)    
+   }
 
+   if (data === 'taketick') {
+    taker(cid)
    }
 
    if (data === 'start') {

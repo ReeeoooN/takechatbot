@@ -12,7 +12,16 @@ back = {
             [{text: 'Назад', callback_data: 'start'}],
         ]
     })
+}
+
+taketickbtn = {
+    reply_markup: JSON.stringify( {
+        inline_keyboard: [
+            [{text: 'Взять заявку', callback_data: 'taketick'}],
+        ]
+    })
 } 
 
 module.exports.startchoise = startchoise;
 module.exports.back=back;
+module.exports.taketickbtn=taketickbtn

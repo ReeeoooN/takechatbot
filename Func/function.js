@@ -1,5 +1,5 @@
-const { ticketModel } = require("../bd")
-const { back } = require("../botBtn")
+const { ticketModel, chatModel, bigusersModel} = require("../bd")
+const { back, taketickbtn } = require("../botBtn")
 const { logging } = require("../logging")
 const { bot } = require("../TelegramAPI")
 const { createChatDB, deleteBotMessage } = require("./messDelF")
@@ -44,8 +44,44 @@ async function returnchat(chatid) {
     })
 }
 
-function notificator(cid) {
-    ticketModel.findOne({where: {chatId: cid}, raw: true}).then(user)
+function notificator(cid, uName) {
+    bigusersModel.findOne({where: {chatid: cid}, raw: true}).then( async user =>{
+        if (!user) {
+            bigusersModel.create({
+                chatid: cid,
+                username: uName
+            })
+            deleteBotMessage(cid)
+            let mess = await bot.sendMessage(cid, `Мы сообщим тебе если кто-то захочет вернуть чат мы тебе сообщим`)
+            createChatDB(cid, mess.message_id)
+            ticketModel.findAll({raw:true}).then(async res =>{
+                for(let i = 0; i<res.length; i++) {
+                    deleteBotMessage(cid)
+                    let mess = await bot.sendMessage(cid, `Есть запрос на возврат чата, возьмешь?`, taketickbtn)
+                    createChatDB(cid, mess.message_id)
+                } 
+            })
+        } else {
+            ticketModel.findAll({raw:true}).then( async res =>{
+                for(let i = 0; i<res.length; i++) {
+                    deleteBotMessage(cid)
+                    let mess = await bot.sendMessage(cid, `Есть запрос на возврат чата, возьмешь?`, taketickbtn)
+                    createChatDB(cid, mess.message_id)
+                } 
+            })
+        }
+    })
 }
 
+function taker (cid) {
+    deleteBotMessage(cid)
+    ticketModel.findAll({raw: true}).then(res=>{
+        for (let i = 0; i<res.length; i++) {
+            bot.sendMessage(cid, `@${res[i].username} просит вернуть чат\n ID чата - ${res[i].returnchatid} \n Админка - https://mon.kontur.ru/livechat-admin/issue-search`)
+        }
+    })
+}
+
+module.exports.taker = taker
 module.exports.returnchat = returnchat
+module.exports.notificator = notificator

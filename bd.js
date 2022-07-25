@@ -20,12 +20,16 @@ const chat = sequelize.define('chats', {
     messageid: {type: DataTypes.INTEGER}
 })
 
-const bigusers = sequelize.define('bigusers', {
+
+
+module.exports.chatModel = chat;
+
+const biguser = sequelize.define('bigusers', {
     chatid: {type: DataTypes.INTEGER},
     username: {type: DataTypes.STRING}
 })
 
-module.exports.chatModel = chat;
+module.exports.bigusersModel = biguser
 
 try {
     sequelize.authenticate()
