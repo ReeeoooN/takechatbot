@@ -1,5 +1,5 @@
 const { ticketModel, chatModel, bigusersModel} = require("../bd")
-const { back, taketickbtn } = require("../botBtn")
+const { back, taketickbtn, nectaketickbtn} = require("../botBtn")
 const { logging } = require("../logging")
 const { bot } = require("../TelegramAPI")
 const { createChatDB, deleteBotMessage } = require("./messDelF")
@@ -55,33 +55,66 @@ function notificator(cid, uName) {
             let mess = await bot.sendMessage(cid, `Мы сообщим тебе если кто-то захочет вернуть чат мы тебе сообщим`)
             createChatDB(cid, mess.message_id)
             ticketModel.findAll({raw:true}).then(async res =>{
-                for(let i = 0; i<res.length; i++) {
+                if (res.length < 1) {
                     deleteBotMessage(cid)
-                    let mess = await bot.sendMessage(cid, `Есть запрос на возврат чата, возьмешь?`, taketickbtn)
+                    let mess = await bot.sendMessage(cid, 'Пока заявок нет, вернемся в главное меню?', back)
                     createChatDB(cid, mess.message_id)
-                } 
+                } else {
+                    for(let i = 0; i<res.length; i++) {
+                        deleteBotMessage(cid)
+                        let mess = await bot.sendMessage(cid, `Есть запрос на возврат чата, возьмешь?`, nectaketickbtn)
+                        createChatDB(cid, mess.message_id)
+                    }
+                }
             })
         } else {
             ticketModel.findAll({raw:true}).then( async res =>{
-                for(let i = 0; i<res.length; i++) {
+                if (res.length < 1) {
                     deleteBotMessage(cid)
-                    let mess = await bot.sendMessage(cid, `Есть запрос на возврат чата, возьмешь?`, taketickbtn)
+                    let mess = await bot.sendMessage(cid, 'Пока заявок нет, вернемся в главное меню?', back)
                     createChatDB(cid, mess.message_id)
-                } 
+                } else {
+                    for(let i = 0; i<res.length; i++) {
+                        deleteBotMessage(cid)
+                        let mess = await bot.sendMessage(cid, `Есть запрос на возврат чата, возьмешь?`, nectaketickbtn)
+                        createChatDB(cid, mess.message_id)
+                    }
+                }
             })
         }
     })
 }
 
-function taker (cid) {
+function taker (cid, uName) {
     deleteBotMessage(cid)
     ticketModel.findAll({raw: true}).then(res=>{
         for (let i = 0; i<res.length; i++) {
             bot.sendMessage(cid, `@${res[i].username} просит вернуть чат\n ID чата - ${res[i].returnchatid} \n Админка - https://mon.kontur.ru/livechat-admin/issue-search`)
+            bot.sendMessage(res[i].chatid, `${uName} возвращает тебе чаты.`)
+            ticketModel.destroy({
+                where: {
+                    chatid: res[i].chatid
+                }
+            })
         }
     })
 }
 
+async function delnot(cid) {
+    bigusersModel.destroy({
+        where: {
+            chatid: cid
+        }
+    }).then((res) => {
+        log = `${cid} отписался от уведомлений ${res}`;
+        logging(log);
+    });
+    deleteBotMessage(cid)
+    let mess = await bot.sendMessage(cid, 'Больше я не отправлю сообшения, если кто-то захочет вернуть чат', back)
+    createChatDB(cid, mess.message_id)
+}
+
+module.exports.delnot = delnot
 module.exports.taker = taker
 module.exports.returnchat = returnchat
 module.exports.notificator = notificator

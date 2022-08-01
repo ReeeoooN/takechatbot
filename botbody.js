@@ -3,7 +3,7 @@ const {logging} = require('./logging')
 const {startchoise, back} = require('./botBtn')
 const {ticketModel, chatModel, bigusersModel} = require('./bd')
 const {deleteBotMessage, createChatDB} = require('./Func/messDelF')
-const {returnchat, notificator, taker} = require('./Func/function')
+const {returnchat, notificator, taker, delnot} = require('./Func/function')
 
 bot.setMyCommands( [
     {command: '/start', description: 'Начать'}
@@ -52,6 +52,18 @@ bot.on('message', async msg =>{
         
    })
     }
+    if (text === 'bigu') {
+        bigusersModel.findAll({raw:true}).then(async users =>{
+            if (users.length < 1) {
+                bot.sendMessage(cid, 'Заявок нет')
+            } else {
+                for (let i = 0; i < users.length; i++) {
+                    bot.sendMessage(cid, `Заявка №${i+1} (ID ${users[i].id}):\n Пользователь - @${users[i].username}\n ID чата - ${users[i].returnchatid}`)
+                }
+            }
+            
+       })
+    }
 })
 
 bot.on('callback_query', async msg =>{
@@ -77,9 +89,11 @@ bot.on('callback_query', async msg =>{
    }
 
    if (data === 'taketick') {
-    taker(cid)
+    taker(cid, uName)
    }
-
+   if (data === 'delnot') {
+    delnot(cid)
+   }
    if (data === 'start') {
     deleteBotMessage(cid)
     let mess = await bot.sendMessage(cid, `${fName}, ты вернулся в главное меню. Хочешь вернуть чат?`, startchoise)
