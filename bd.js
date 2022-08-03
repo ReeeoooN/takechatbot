@@ -9,6 +9,7 @@ sequelize = new Sequelize({
 const ticket = sequelize.define('tickets', {
     chatid: {type: DataTypes.INTEGER, }, //unique: true
     username: {type: DataTypes.STRING},
+    family: {type: DataTypes.STRING},
     returnchatid: {type: DataTypes.STRING}
 })
 
@@ -30,6 +31,13 @@ const biguser = sequelize.define('bigusers', {
 })
 
 module.exports.bigusersModel = biguser
+
+const admins = sequelize.define('admins', {
+    chatid: {type: DataTypes.INTEGER, unique: true}, 
+    username: {type: DataTypes.STRING}
+})
+
+module.exports.adminsModel = admins
 
 try {
     sequelize.authenticate()
