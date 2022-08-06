@@ -5,7 +5,7 @@ adminStart = {
             [{text: 'bigUsers', callback_data: 'adminBu'}, {text: 'bigUsers DEL', callback_data: 'adminBuDel'}],
             [{text: 'Показать админов', callback_data: 'adminShowAdmin'}, {text: 'Забрать админку', callback_data: 'adminRemAdmin'}],
             [{text: 'Дать админку', callback_data: 'adminGiveAdmin'}],
-            [{text: 'Выгрузить лог', callback_data: 'adminGiveLog'}],
+            [{text: 'Выгрузить лог за сегодня', callback_data: 'adminGiveLog'}],
             [{text: 'Назад', callback_data: 'start'}]
         ]
     })
@@ -20,4 +20,4 @@ adminBack = {
 }
 
 module.exports.adminStart =adminStart
-module.exports.adminBack = adminBack
+module.exports.adminBack = adminBack 

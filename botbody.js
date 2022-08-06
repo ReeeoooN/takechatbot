@@ -16,17 +16,14 @@ bot.on('message', async msg =>{ //Обработчик текстовых соб
    const cid = msg.chat.id;
    const uName = msg.from.username;
    const fName = msg.from.first_name;
-   let log = `Написал ${uName} c чата ${cid}. Текст сообщения "${text}"`;  
+   let log = `Написал @${uName} c чата ${cid}. Текст сообщения "${text}"`;  
    logging(log); 
    if (text === '/start') {
     chatModel.destroy({ // удаление всех записей сообщений из базы данных
         where: {
             chatid: cid
         }
-    }).then((res) => {
-        log = `Удалили данные из бд${res}`;
-        logging(log);
-    });
+    })
     let mess = await bot.sendMessage(cid, `Привет, ${fName}, хочешь вернуть чат?`, startchoise)
     createChatDB(cid, mess.message_id);
    } 
@@ -36,6 +33,8 @@ bot.on('message', async msg =>{ //Обработчик текстовых соб
                 if(users[i].chatid === cid) {
                     deleteBotMessage(cid)
                     let mess = await bot.sendMessage(cid, `Добро пожаловать администратор`, adminStart)
+                    let log = `@${uName} решил войти в админку`
+                    logging(log)
                     createChatDB(cid, mess.message_id)
                     break
                 }
@@ -101,29 +100,29 @@ bot.on('callback_query', async msg =>{ //Обработчик callback_query с�
     showAllTick(cid)
    }
    if (data === 'adminBu'){
-    showAllBu(cid)    
+    showAllBu(cid, uName)    
    }
    if (data === 'adminTickDel'){
-    dellTick(cid)
+    dellTick(cid, uName)
    }
    if (data === 'adminBuDel'){
-    dellBu(cid)
+    dellBu(cid), uName
    }
    if (data === 'adminStartMenu') {
-    deleteBotMessage(cid)
+    deleteBotMessage(cid, uName)
     let mess = await bot.sendMessage(cid, `Добро пожаловать, администратор`, adminStart)
     createChatDB(cid, mess.message_id)
    }
    if (data === 'adminShowAdmin'){
-    showAllAdmin(cid)
+    showAllAdmin(cid, uName)
    }
    if (data === 'adminGiveAdmin'){
-    adminCreate(cid)
+    adminCreate(cid,uName)
    }
    if (data=== 'adminRemAdmin'){
-    dellAdmins(cid)
+    dellAdmins(cid,uName)
    }
    if (data === 'adminGiveLog'){
-    giveLogFile(cid)
+    giveLogFile(cid,uName)
    }
 })

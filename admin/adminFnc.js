@@ -3,8 +3,13 @@ const { back } = require("../botBtn");
 const { deleteBotMessage, createChatDB } = require("../Func/messDelF");
 const { bot } = require("../TelegramAPI");
 const { adminBack } = require("./adminbtn");
+var fs = require('fs');
+const format = require('node.date-time');
+const { logging } = require("../logging");
 
-async function showAllTick (cid) { //Показать заявки
+async function showAllTick (cid, uName) { //Показать заявки
+    let log = `${uName} хочет посмотреть тикеты`
+    logging(log)
     deleteBotMessage(cid)
     ticketModel.findAll({raw:true}).then(async res=>{
         for (let i=0; i<res.length; i++){
@@ -14,7 +19,9 @@ async function showAllTick (cid) { //Показать заявки
         createChatDB(cid, mess.message_id)
     })
 }
- async function showAllBu (cid) { //Показать пользователей с уведомлениями
+ async function showAllBu (cid, uName) { //Показать пользователей с уведомлениями
+    let log = `${uName} хочет посмотреть пользователей`
+    logging(log)
     deleteBotMessage(cid)
     bigusersModel.findAll({raw:true}).then(async res=>{
         for (let i=0; i<res.length; i++){
@@ -24,7 +31,9 @@ async function showAllTick (cid) { //Показать заявки
         createChatDB(cid, mess.message_id)
     })
 }
-async function dellTick (cid) {// удалить заявку
+async function dellTick (cid, uName) {// удалить заявку
+    let log = `${uName} хочет удалить тикет`
+    logging(log)
     const del = new Promise( async (resolve, reject)=>{
         bot.sendMessage(cid, 'Введи id')
         bot.on ('message', async msg=>{
@@ -35,10 +44,14 @@ async function dellTick (cid) {// удалить заявку
         ticketModel.destroy({where: {id: res}})
         deleteBotMessage(cid)
         let mess = await bot.sendMessage(cid, `Пользователь удален`, adminBack)
+        let log = `${uName} удалил тикет id${res}`
+        logging(log)
         createChatDB(cid, mess.message_id)
     })
 }
-async function dellBu (cid) {// удалить пользователя
+async function dellBu (cid, uName) {// удалить пользователя
+    let log = `${uName} хочет удалить пользователя`
+    logging(log)
     const del = new Promise( async (resolve, reject)=>{
         bot.sendMessage(cid, 'Введи id')
         bot.on ('message', async msg=>{
@@ -49,13 +62,19 @@ async function dellBu (cid) {// удалить пользователя
         bigusersModel.destroy({where: {id: res}})
         deleteBotMessage(cid)
         let mess = await bot.sendMessage(cid, `Пользователь удален`, adminBack)
+        let log = `${uName} удалил пользователя id${res}`
+        logging(log)
         createChatDB(cid, mess.message_id)
     })
 }
 
-function adminCreate(cid){ //Дать права админа
+function adminCreate(cid, uName){ //Дать права админа
+    let log = `${uName} дать админку`
+    logging(log)
     const admCrCid = new Promise( async (resolve, reject)=>{
-        bot.sendMessage(cid, `Введи id чата`)
+        deleteBotMessage(cid)
+        let mess = await bot.sendMessage(cid, `Введи id чата`)
+        createChatDB(cid, mess.message_id)
         bot.on ('message', async msg=>{
             const text = msg.text;
             resolve(text)
@@ -75,6 +94,10 @@ function adminCreate(cid){ //Дать права админа
                     resolve(result)
                 })
             }).then(res=>{
+                adminsModel.findOne({where:{chatid: res.id}, raw:true}).then(user=>{
+                    let log = `${uName} дал админку @${user.username}`
+                    logging(log)
+                })
                 adminsModel.update({username: res.username}, {where: {chatid: res.id}}).then(async res=>{
                     console.log(res);
                     deleteBotMessage(cid)
@@ -86,7 +109,9 @@ function adminCreate(cid){ //Дать права админа
     })
 }
 
-async function showAllAdmin (cid) { //показать админов
+async function showAllAdmin (cid, uName) { //показать админов
+    let log = `${uName} хочет посмотреть админов`
+    logging(log)
     deleteBotMessage(cid)
     adminsModel.findAll({raw:true}).then(async res=>{
         for (let i=0; i<res.length; i++){
@@ -97,7 +122,9 @@ async function showAllAdmin (cid) { //показать админов
     })
 }
 
-async function dellAdmins (cid) { //Удалить админа
+async function dellAdmins (cid, uName) { //Удалить админа
+    let log = `${uName} хочет удалить админа`
+    logging(log)
     const del = new Promise( async (resolve, reject)=>{
         bot.sendMessage(cid, 'Введи id')
         bot.on ('message', async msg=>{
@@ -105,6 +132,10 @@ async function dellAdmins (cid) { //Удалить админа
             resolve(text)
         })
     }).then(async res=>{
+        await adminsModel.findOne({where:{id: res}, raw:true}).then(user=>{
+            let log = `${uName} забрал права у ${user.username}`
+            logging(log)
+        })
         adminsModel.destroy({where: {id: res}})
         deleteBotMessage(cid)
         let mess = await bot.sendMessage(cid, `Админ удален`, adminBack)
@@ -112,9 +143,18 @@ async function dellAdmins (cid) { //Удалить админа
     })
 }
 
-async function giveLogFile (cid) { //отправить в чат файл лог
+async function giveLogFile (cid, uName) { //отправить в чат файл лог
+    let log = `${uName} хочет выгрузил логи`
+    logging(log)
+    const testName = 'test'
+    fs.readFile(`./logs/${new Date().format("Y-M-d")}.log`, "utf8", 
+            function(error,data){
+                console.log("Асинхронное чтение файла");
+                if(error) throw error; // если возникла ошибка
+                bot.sendMessage(cid, data);  // выводим считанные данные
+});
     deleteBotMessage(cid)
-    let mess = await bot.sendMessage(cid, `Не реализовано`, adminBack)
+    let mess = await bot.sendMessage(cid, `Лог был выслан`, adminBack)
     createChatDB(cid, mess.message_id)
 }
 
